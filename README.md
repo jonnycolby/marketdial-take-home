@@ -79,5 +79,3 @@ Install dependencies first if you haven’t (see Setup step 2). No frontend test
 The backend venv is Python 3.11 so the pinned deps stay compatible. After activation, `python` and `pip` refer to that venv; `python -m pip` is still the safest way to install so you don't accidentally use a different Python.
 
 The app is set up to work with the default ports (backend 8000, frontend 5173). If you need to point the frontend at a different API host or port, set `VITE_API_BASE_URL` in `frontend/.env.local`.
-
-I wanted to challenge myself and create my own sort of chart "library" to use instead of ApexCharts or another chart library; you can find it at [https://github.com/jonnycolby/marketdial-take-home/tree/custom-chart](https://github.com/jonnycolby/marketdial-take-home-wip/tree/custom-chart).
