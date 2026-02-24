@@ -2,7 +2,7 @@
 import { onMounted, ref } from "vue";
 import AppCheckbox from "./components/AppCheckbox.vue";
 import AppSidebar from "./components/AppSidebar.vue";
-import DataChart from "./components/DataChart.vue";
+import DataChartJonny from "./components/DataChartJonny.vue";
 import RevenueTable from "./components/RevenueTable.vue";
 import RowDetailModal from "./components/RowDetailModal.vue";
 import AppTooltip from "./components/AppTooltip.vue";
@@ -358,7 +358,7 @@ async function excludeOutliersAgain() {
 
           <!-- Charts (stacked vertically) -->
           <section class="space-y-6">
-            <DataChart
+            <DataChartJonny
               :series="store.chartSeries"
               :loading="store.chartLoading"
               :error="store.chartError"
