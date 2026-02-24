@@ -1,0 +1,40 @@
+{
+  "name": "marketdial-takehome-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts,.vue",
+    "format": "prettier . --write"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.0",
+    "apexcharts": "^5.6.0",
+    "d3": "^7.9.0",
+    "pinia": "^3.0.4",
+    "tailwindcss": "^4.2.0",
+    "vue": "^3.5.25",
+    "vue3-apexcharts": "^1.10.0"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.56.0",
+    "@typescript-eslint/parser": "^8.56.0",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "@vue/tsconfig": "^0.8.1",
+    "eslint": "^10.0.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.8.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1",
+    "vue-tsc": "^3.1.5"
+  }
+}
