@@ -2,10 +2,18 @@
 
 A small app to explore daily revenue across stores. You can filter by region and date, see whether each store is trending up or down (or uncertain) from expected revenue, and dig into the numbers.
 
+## Custom Chart Library
+
+This version includes a custom chart library in place of ApexCharts.
+
+I like this version better because the transitions are smoother and we have more control over the rendering and interactions.
+
+If you'd like to view the original, you can do so here: [main](https://github.com/jonnycolby/marketdial-take-home/tree/main)
+
 ## Stack
 
 - **Frontend:** Vue 3, TypeScript, Vite, Tailwind v4, Pinia.
-- **Charts:** ApexCharts, plus a small custom time-series SVG chart (see branch [custom-chart](https://github.com/jonnycolby/marketdial-take-home/tree/custom-chart)).
+- **Charts:** A small custom time-series SVG chart.
 - **Backend:** Python 3.11, FastAPI.
 
 ## Prerequisites
@@ -72,4 +80,4 @@ The backend venv is Python 3.11 so the pinned deps stay compatible. After activa
 
 The app is set up to work with the default ports (backend 8000, frontend 5173). If you need to point the frontend at a different API host or port, set `VITE_API_BASE_URL` in `frontend/.env.local`.
 
-I wanted to challenge myself and create my own sort of chart "library", to use instead of ApexCharts or another chart library; you can find it at [https://github.com/jonnycolby/marketdial-take-home/tree/custom-chart](https://github.com/jonnycolby/marketdial-take-home-wip/tree/custom-chart).
+I wanted to challenge myself and create my own sort of chart "library" to use instead of ApexCharts or another chart library; you can find it at [https://github.com/jonnycolby/marketdial-take-home/tree/custom-chart](https://github.com/jonnycolby/marketdial-take-home-wip/tree/custom-chart).
