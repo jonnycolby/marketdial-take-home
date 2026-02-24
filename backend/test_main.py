@@ -1,4 +1,5 @@
 """Tests for Store Revenue API: filters, pagination, map_row, summary, and endpoints."""
+
 from datetime import date
 
 import pytest
