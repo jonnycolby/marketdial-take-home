@@ -254,3 +254,42 @@ def test_summary_has_structure(client):
         assert "avg_delta" in series[0]
         assert "count" in series[0]
         assert series == sorted(series, key=lambda x: x["date"])
+
+
+def test_results_sort_dir_desc_non_delta(client):
+    """GET /results honors sort_dir=desc for non-delta sort keys (e.g. actual_revenue)."""
+    resp = client.get(
+        "/results",
+        params={
+            "sort_by": "actual_revenue",
+            "sort_dir": "desc",
+            "page": 1,
+            "page_size": 50,
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    results = data["results"]
+    if len(results) < 2:
+        pytest.skip("Need at least 2 results to assert order")
+    actuals = [r["actual_revenue"] for r in results]
+    assert actuals == sorted(actuals, reverse=True), "sort_dir=desc should reverse order by actual_revenue"
+
+
+def test_results_sort_dir_default_asc_non_delta(client):
+    """GET /results defaults to asc for non-delta sort when sort_dir is omitted."""
+    resp = client.get(
+        "/results",
+        params={
+            "sort_by": "actual_revenue",
+            "page": 1,
+            "page_size": 50,
+        },
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    results = data["results"]
+    if len(results) < 2:
+        pytest.skip("Need at least 2 results to assert order")
+    actuals = [r["actual_revenue"] for r in results]
+    assert actuals == sorted(actuals), "default sort_dir for non-delta should be asc"
