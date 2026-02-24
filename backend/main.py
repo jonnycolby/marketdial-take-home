@@ -2,6 +2,7 @@ import json
 import os
 import statistics
 import sys
+import warnings
 from datetime import date, datetime
 from decimal import ROUND_HALF_UP, Decimal
 from functools import lru_cache
@@ -35,13 +36,22 @@ def clamp_nonneg_int(x: Any, default: int = 0) -> int:
 
 # ---- Python version guard (deterministic for reviewers) ----
 if not (sys.version_info.major == 3 and sys.version_info.minor == 11):
-    raise RuntimeError("Python 3.11.x required (tested with 3.11.14).")
+    warnings.warn(
+        f"Recommended Python is 3.11.x (tested with 3.11.14). Running {sys.version_info.major}.{sys.version_info.minor}.",
+        RuntimeWarning,
+    )
+
+ALLOWED_ORIGINS = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173",
+)
+allow_origins = [o.strip() for o in ALLOWED_ORIGINS.split(",") if o.strip()]
 
 app = FastAPI(title="Store Revenue API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -190,7 +200,10 @@ def results(
     total = len(mapped)
 
     if sort_by and sort_by in _VALID_SORT_KEYS:
-        reverse = (sort_dir or "desc" if sort_by == "delta" else "asc") == "desc"
+        sort_dir_norm = (sort_dir or "").strip().lower()
+        if sort_dir_norm not in ("", "asc", "desc"):
+            sort_dir_norm = ""
+        reverse = (sort_dir_norm or ("desc" if sort_by == "delta" else "asc")) == "desc"
         mapped = sorted(
             mapped,
             key=lambda m: m.get(sort_by, 0) if sort_by != "date" else m.get("date", ""),
