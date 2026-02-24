@@ -32,6 +32,7 @@ def clamp_nonneg_int(x: Any, default: int = 0) -> int:
         v = default
     return max(0, v)
 
+
 # ---- Python version guard (deterministic for reviewers) ----
 if not (sys.version_info.major == 3 and sys.version_info.minor == 11):
     raise RuntimeError("Python 3.11.x required (tested with 3.11.14).")
@@ -174,9 +175,13 @@ def results(
     end_date: Optional[date] = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(25, ge=1, le=200),
-    sort_by: Optional[str] = Query(None, description="date, delta, actual_revenue, baseline_revenue, transactions"),
+    sort_by: Optional[str] = Query(
+        None, description="date, delta, actual_revenue, baseline_revenue, transactions"
+    ),
     sort_dir: Optional[str] = Query(None, description="asc or desc"),
-    uncertain_only: bool = Query(False, description="If true, return only rows where the confidence interval crosses 0"),
+    uncertain_only: bool = Query(
+        False, description="If true, return only rows where the confidence interval crosses 0"
+    ),
 ):
     rows = load_rows()
     mapped = _get_mapped_filtered(rows, region, store_id, start_date, end_date)
@@ -186,7 +191,11 @@ def results(
 
     if sort_by and sort_by in _VALID_SORT_KEYS:
         reverse = (sort_dir or "desc" if sort_by == "delta" else "asc") == "desc"
-        mapped = sorted(mapped, key=lambda m: m.get(sort_by, 0) if sort_by != "date" else m.get("date", ""), reverse=reverse)
+        mapped = sorted(
+            mapped,
+            key=lambda m: m.get(sort_by, 0) if sort_by != "date" else m.get("date", ""),
+            reverse=reverse,
+        )
 
     page_items, _ = paginate(mapped, page, page_size)
     return {"page": page, "page_size": page_size, "total": total, "results": page_items}
@@ -195,7 +204,9 @@ def results(
 _OUTLIER_MULTIPLIER = 10  # values > this many times the median are treated as outliers
 
 
-def _detect_outliers(mapped: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def _detect_outliers(
+    mapped: List[Dict[str, Any]],
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """Split mapped into inliers and outlier records. Outliers are store-days whose actual or baseline revenue is > 10x the median (would distort charts)."""
     if not mapped:
         return [], []
@@ -216,14 +227,16 @@ def _detect_outliers(mapped: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]]
                 reason.append(f"actual revenue ${a:,.2f} is >{_OUTLIER_MULTIPLIER}x typical")
             if b > threshold_baseline:
                 reason.append(f"expected revenue ${b:,.2f} is >{_OUTLIER_MULTIPLIER}x typical")
-            outliers.append({
-                "date": m.get("date", ""),
-                "store_id": m.get("store_id", ""),
-                "region": m.get("region", ""),
-                "reason": "; ".join(reason),
-                "actual_revenue": a,
-                "baseline_revenue": b,
-            })
+            outliers.append(
+                {
+                    "date": m.get("date", ""),
+                    "store_id": m.get("store_id", ""),
+                    "region": m.get("region", ""),
+                    "reason": "; ".join(reason),
+                    "actual_revenue": a,
+                    "baseline_revenue": b,
+                }
+            )
         else:
             inliers.append(m)
     return inliers, outliers
@@ -235,7 +248,10 @@ def summary(
     store_id: Optional[str] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
-    exclude_outliers: bool = Query(True, description="Exclude outlier store-days from chart and summary stats so scales stay readable; excluded rows are listed in outlier_warnings"),
+    exclude_outliers: bool = Query(
+        True,
+        description="Exclude outlier store-days from chart and summary stats so scales stay readable; excluded rows are listed in outlier_warnings",
+    ),
 ):
     rows = load_rows()
     mapped = _get_mapped_filtered(rows, region, store_id, start_date, end_date)
@@ -257,7 +273,9 @@ def summary(
         outlier_warnings = outlier_list
     else:
         used = mapped
-        outlier_warnings = outlier_list  # still report so UI can show "Use full data" / "Exclude outliers"
+        outlier_warnings = (
+            outlier_list  # still report so UI can show "Use full data" / "Exclude outliers"
+        )
 
     total = len(used)
     if total == 0:
@@ -268,7 +286,15 @@ def summary(
             "uncertain_rate": 0,
             "regions": [],
             "delta_over_time": [],
-            "outlier_warnings": [{"date": w["date"], "store_id": w["store_id"], "region": w["region"], "reason": w["reason"]} for w in outlier_warnings],
+            "outlier_warnings": [
+                {
+                    "date": w["date"],
+                    "store_id": w["store_id"],
+                    "region": w["region"],
+                    "reason": w["reason"],
+                }
+                for w in outlier_warnings
+            ],
         }
 
     deltas = [m["delta"] for m in used]
@@ -295,14 +321,16 @@ def summary(
         avg_actual = float(q2(sum(Decimal(str(x["actual_revenue"])) for x in items) / n))
         avg_expected = float(q2(sum(Decimal(str(x["baseline_revenue"])) for x in items) / n))
         uncertain_count_d = sum(1 for x in items if x.get("uncertain"))
-        delta_over_time.append({
-            "date": d,
-            "avg_delta": avg_delta,
-            "avg_actual": avg_actual,
-            "avg_expected": avg_expected,
-            "count": n,
-            "uncertain_rate": round(uncertain_count_d / n, 6),
-        })
+        delta_over_time.append(
+            {
+                "date": d,
+                "avg_delta": avg_delta,
+                "avg_actual": avg_actual,
+                "avg_expected": avg_expected,
+                "count": n,
+                "uncertain_rate": round(uncertain_count_d / n, 6),
+            }
+        )
 
     payload = {
         "total": total,
@@ -314,7 +342,15 @@ def summary(
         "uncertain_rate": round(uncertain_count / total, 6),
         "regions": regions,
         "delta_over_time": delta_over_time,
-        "outlier_warnings": [{"date": w["date"], "store_id": w["store_id"], "region": w["region"], "reason": w["reason"]} for w in outlier_warnings],
+        "outlier_warnings": [
+            {
+                "date": w["date"],
+                "store_id": w["store_id"],
+                "region": w["region"],
+                "reason": w["reason"],
+            }
+            for w in outlier_warnings
+        ],
     }
     if outlier_warnings:
         payload["total_full"] = total_full
